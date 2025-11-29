@@ -1,14 +1,14 @@
 # Standard routine
 cmake_minimum_required(VERSION 3.16)
 project(aui_todo
-        VERSION 0.0.12 # CI_PROJECT_VERSION
+        VERSION 0.0.1 # CI_PROJECT_VERSION
     )
 
 option(BUILD_SHARED_LIBS "Build shared libs" OFF)
 option(AUIB_FORCE_PRECOMPILED "AUI.Boot: force precompiled dependencies" OFF)
 option(AUIB_NO_PRECOMPILED "AUI.Boot: disable precompiled dependencies" OFF)
 
-set(AUI_VERSION v8.0.0-rc.13)
+set(AUI_VERSION v8.0.0-rc.15)
 
 # Use AUI.Boot
 file(
