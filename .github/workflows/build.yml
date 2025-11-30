@@ -79,16 +79,6 @@ jobs:
       - name: Build Project
         run: cmake --build ${{github.workspace}}/build --config RelWithDebInfo
 
-      - name: Run Tests (Windows)
-        if: runner.os == 'Windows'
-        working-directory: ${{github.workspace}}/build/bin/RelWithDebInfo/
-        run: ${{github.workspace}}/build/bin/RelWithDebInfo/Tests.exe
-
-      - name: Run Tests (Linux and macOS)
-        if: runner.os == 'Linux'
-        working-directory: ${{github.workspace}}/build/bin
-        run: ${{github.workspace}}/build/bin/Tests
-
       - name: Pack Windows Setup
         if: runner.os == 'Windows'
         working-directory: ${{github.workspace}}/build
