@@ -1,11 +1,10 @@
 #include "model/TodoItem.h"
 #include "DetailedWindow.h"
 #include "TitleTextArea.h"
-#include <AUI/Util/UIBuildingHelpers.h>
-#include <AUI/View/AButton.h>
 #include <AUI/View/Dynamic.h>
 #include <AUI/View/AScrollArea.h>
 #include <AUI/Util/kAUI.h>
+#include <AUI/Util/AMetric.h>
 
 
 using namespace declarative;
@@ -25,17 +24,9 @@ _<AView> todoEditor(const _<TodoItem>& todoItem) {
     });
 }
 
-DetailedWindow::DetailedWindow(_<TodoItem> todoItem) : AWindow("Placeholder") {
+DetailedWindow::DetailedWindow(_<TodoItem> todoItem) : AWindow(todoItem->title) {
     setContents(
         Vertical::Expanding{
-            Centered{
-                Horizontal{
-                    Button { Horizontal { Label {"Save"} }
-                    },
-                    Button { Horizontal{ Label {"Mark as completed"} }
-                    }
-                }
-            },
             experimental::Dynamic { AUI_REACT(todoEditor(todoItem)) } AUI_OVERRIDE_STYLE { Expanding() }
         } 
     );

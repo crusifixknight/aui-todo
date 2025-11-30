@@ -19,7 +19,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/aui.boot.cmake)
 
 # import AUI
 auib_import(aui https://github.com/aui-framework/aui
-        COMPONENTS core views curl json crypt
+        COMPONENTS core views json
         VERSION ${AUI_VERSION})
 
 
@@ -28,7 +28,7 @@ auib_import(aui https://github.com/aui-framework/aui
 aui_executable(${PROJECT_NAME})
 
 # Link required libs
-aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views)
+aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views aui::json)
 
 # Compile assets
 aui_compile_assets(${PROJECT_NAME})
