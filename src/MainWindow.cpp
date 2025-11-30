@@ -21,13 +21,13 @@
 #include <AUI/IO/AFileOutputStream.h>
 #include <AUI/IO/AFileInputStream.h> 
 #include "model/TodoItem.h"
-#include <AUI/Json/AJson.h>
-
+#include<AUI/Json/Conversion.h>
 
 using namespace declarative;
 
 static constexpr auto LOG_TAG = "Todo's";
 
+//AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title), AJSON_FIELDS_ENTRY(description), AJSON_FIELDS_ENTRY(date), AJSON_FIELDS_ENTRY(isCompleted))
 
 MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
     setExtraStylesheet(AStylesheet {
@@ -49,7 +49,6 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
                 AScrollArea::Builder()
                   .withContents(
                     AUI_DECLARATIVE_FOR(todoItem, *mTodoItems, AVerticalLayout){ 
-                       observeChangesForDirty(todoItem);
                        return Vertical{
                            SpacerFixed { 10_dp },
                            todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] {
@@ -69,37 +68,11 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
 
 }
 
-void MainWindow::observeChangesForDirty(const _<TodoItem>& todeItem) {
-    aui::reflect::for_each_field_value(
-        *todeItem,
-        aui::lambda_overloaded {
-          [&](auto& field) {},
-          [&](APropertyReadable auto& field) {
-
-              AObject::connect(field.changed, me::markDirty);
-          },
-        });
-}
-
-void MainWindow::markDirty() { mDirty = true; }
-
 void MainWindow::newTodo() {
     auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled", .isCompleted = false});
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
 }
-//_<AView> todoPreview(const _<TodoItem>& todoItem){
-//    return Horizontal{
-//      CheckBox { // checkBox for complete task
-//        .checked = AUI_REACT(todoItem->isCompleted),
-//        .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; }
-//      },
-//      Vertical{
-//        Label { AUI_REACT(todoItem->title) } AUI_OVERRIDE_STYLE { FontSize {10_pt}, ATextOverflow::ELLIPSIS },
-//        Label { AUI_REACT(todoItem->description) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS },
-//      }
-//    };
-//}
 
 void MainWindow::openDetailed(const _<TodoItem>& todoItem) 
 {
@@ -122,6 +95,8 @@ _<AView> todoPreview(const _<TodoItem>& todoItem) {
 
 void MainWindow::save()
 {
+    //ALOG_DEBUG(LOG_TAG) << *mTodoItems;
+
     //AFileOutputStream("todo.json") << aui::to_json(*mTodoItems);
 }
 

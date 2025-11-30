@@ -9,8 +9,6 @@ class MainWindow: public AWindow {
 public:
     MainWindow();
 private:
-    void observeChangesForDirty(const _<TodoItem>&);
-    void markDirty();
     void newTodo();
     void openDetailed(const _<TodoItem>&);
     void save();
@@ -18,5 +16,4 @@ private:
 
     AProperty<AVector<_<TodoItem>>> mTodoItems;
     AProperty<_<TodoItem>> mCurrentTodoItem;
-    AProperty<bool> mDirty = false;
 };
