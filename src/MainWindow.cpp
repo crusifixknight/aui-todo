@@ -14,6 +14,7 @@
 #include "model/TodoItem.h"
 #include<AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
+#include <AUI/View/ACheckBox.h>
 
 using namespace declarative;
 
@@ -71,7 +72,7 @@ void MainWindow::openDetailed(const _<TodoItem>& todoItem)
     _new<DetailedWindow>(todoItem)->show();
 }
 
-_<AView> todoPreview(const _<TodoItem>& todoItem) {
+_<AView> todoPreview(const _<TodoItem> todoItem) {
     auto stringOneLinePreview = [](const AString& s) -> AString {
         if (s.empty()) {
             return "Empty";
@@ -79,9 +80,32 @@ _<AView> todoPreview(const _<TodoItem>& todoItem) {
         return s.restrictLength(100, "").replacedAll('\n', ' ');
     };
 
-    return Vertical {
-        Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::ELLIPSIS },
-        Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description))} AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS }
+    auto check = _new<AProperty<bool>>(todoItem->isCompleted);
+    return Horizontal::Expanding {
+        Horizontal {
+            Centered { CheckBox {
+              .checked = AUI_REACT(todoItem->isCompleted),
+              .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; } } },
+                SpacerFixed { 10_dp },
+                Vertical::Expanding {
+                Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE {
+                    FontSize { 16_pt }, ATextOverflow::ELLIPSIS
+                },
+                    Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE {
+                    Opacity { 0.7f }, ATextOverflow::ELLIPSIS
+                }
+            }
+        }
+    }
+    AUI_OVERRIDE_STYLE { Padding { 10_dp }, BackgroundSolid { AColor::WHITE } };
+}
+
+
+_<AView> minimalCheckBox(_<AProperty<bool>> state) {
+    return CheckBox {
+        .checked = AUI_REACT(*state),
+        .onCheckedChange = [state](bool checked) { *state = checked; },
+        .content = Label { "Minimal checkbox" },
     };
 }
 
@@ -100,3 +124,4 @@ void MainWindow::load() {
         ALogger::info(LOG_TAG) << "Can't load todo list: " << e;
     }
 }
+

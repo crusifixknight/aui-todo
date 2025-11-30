@@ -8,5 +8,5 @@ struct TodoItem{
     AProperty<AString> title;
     AProperty<AString> description;
     AProperty<AString> date;
-    AProperty<bool> isCompleted;
+    AProperty<bool> isCompleted=false;
 };
