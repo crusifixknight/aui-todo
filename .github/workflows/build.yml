@@ -79,9 +79,6 @@ jobs:
       - name: Build Project
         run: cmake --build ${{github.workspace}}/build --config RelWithDebInfo
 
-      - name: Build Tests
-        run: cmake --build ${{github.workspace}}/build --config RelWithDebInfo --target Tests
-
       - name: Run Tests (Windows)
         if: runner.os == 'Windows'
         working-directory: ${{github.workspace}}/build/bin/RelWithDebInfo/
