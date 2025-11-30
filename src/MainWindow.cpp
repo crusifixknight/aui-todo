@@ -3,31 +3,23 @@
 #include <AUI/Util/UIBuildingHelpers.h>
 #include <AUI/View/ALabel.h>
 #include <AUI/View/AButton.h>
-#include <AUI/View/AHDividerView.h>
-#include <AUI/View/ATextField.h>
 #include <AUI/View/ASpacerFixed.h>
 #include <AUI/View/AListView.h>
-#include <AUI/View/ASplitter.h>
-#include <AUI/View/ACheckBox.h>
 #include <AUI/View/AForEachUI.h>
-#include <AUI/Reflect/for_each_field.h>
 #include <AUI/Common/APropertyPrecomputed.h>
 #include <AUI/ASS/AStylesheet.h>
 #include <AUI/Platform/AWindow.h>
 #include <AUI/ASS/Property/Padding.h>
-#include <AUI/ASS/Property/BackgroundSolid.h>
 #include "DetailedWindow.h"
-#include <AUI/Json/Conversion.h> 
-#include <AUI/IO/AFileOutputStream.h>
-#include <AUI/IO/AFileInputStream.h> 
 #include "model/TodoItem.h"
 #include<AUI/Json/Conversion.h>
+#include <AUI/IO/AFileInputStream.h>
 
 using namespace declarative;
 
 static constexpr auto LOG_TAG = "Todo's";
 
-//AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title), AJSON_FIELDS_ENTRY(description), AJSON_FIELDS_ENTRY(date), AJSON_FIELDS_ENTRY(isCompleted))
+AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(date) AJSON_FIELDS_ENTRY(isCompleted))
 
 MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
     setExtraStylesheet(AStylesheet {
@@ -36,7 +28,7 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
         Padding { 10_dp },
       },
     });
-    //load();
+    load();
 
     setContents( 
             Vertical{
@@ -95,18 +87,16 @@ _<AView> todoPreview(const _<TodoItem>& todoItem) {
 
 void MainWindow::save()
 {
-    //ALOG_DEBUG(LOG_TAG) << *mTodoItems;
-
-    //AFileOutputStream("todo.json") << aui::to_json(*mTodoItems);
+    AFileOutputStream("todo.json") << aui::to_json(*mTodoItems);
 }
 
-//void MainWindow::load() {
-//    try {
-//        if (!"todo.json"_path.isRegularFileExists()) {
-//            return;
-//        }
-//        aui::from_json(AJson::fromStream(AFileInputStream("todo.json")), mTodoItems);
-//    } catch (const AException& e) {
-//        ALogger::info(LOG_TAG) << "Can't load todo list: " << e;
-//    }
-//}
+void MainWindow::load() {
+    try {
+        if (!"todo.json"_path.isRegularFileExists()) {
+            return;
+        }
+        aui::from_json(AJson::fromStream(AFileInputStream("todo.json")), mTodoItems);
+    } catch (const AException& e) {
+        ALogger::info(LOG_TAG) << "Can't load todo list: " << e;
+    }
+}

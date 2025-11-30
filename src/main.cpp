@@ -2,7 +2,7 @@
 #include <AUI/Platform/Entry.h>
 
 AUI_ENTRY {
-
-    _new<MainWindow>()->show();
+    auto w = _new<MainWindow>();
+    w->show();
     return 0;
 };
