@@ -5,6 +5,7 @@
 #include <AUI/View/AScrollArea.h>
 #include <AUI/Util/kAUI.h>
 #include <AUI/Util/AMetric.h>
+#include <AUI/View/ASpacerFixed.h>
 
 
 
@@ -14,13 +15,14 @@ _<AView> todoEditor(const _<TodoItem>& todoItem) {
     return AScrollArea::Builder().withContents(
         Vertical{
             _new<TitleTextArea>("Untitled") AUI_LET {
-                it->setCustomStyle({ FontSize { 14_pt }, Expanding {1, 0} });
+                it->setCustomStyle({ FontSize { 20_pt }, Expanding {1, 0}, BackgroundSolid { AColor::WHITE } });
                 AObject::biConnect(todoItem->title, it->text());
                 if (todoItem->description.raw.empty()) {
                     it->focus();
                 }
             },
-            _new<ATextArea>("Text") AUI_OVERRIDE_STYLE { Expanding() } && todoItem->description
+            SpacerFixed{ 10_dp },
+            _new<ATextArea>("Text") AUI_OVERRIDE_STYLE { Expanding(), BackgroundSolid { AColor::WHITE } } && todoItem->description
         } AUI_OVERRIDE_STYLE { Padding { 8_dp, 16_dp }
     });
 }

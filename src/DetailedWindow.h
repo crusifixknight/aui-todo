@@ -8,8 +8,4 @@
 class DetailedWindow : public AWindow {
 public:
     DetailedWindow(_<TodoItem>);
-
-private:
-    //save();
-    //markAsCompleted();
 };

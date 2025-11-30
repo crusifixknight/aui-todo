@@ -15,6 +15,7 @@
 #include<AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
 #include <AUI/View/ACheckBox.h>
+#include <AUI/Util/AWordWrappingEngineImpl.h>
 
 using namespace declarative;
 
@@ -54,7 +55,9 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
                                     }
                                 },
                                 SpacerFixed { 10_dp }, 
-                                todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }); }
+                                todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }); },
+                                SpacerExpanding { },
+                                Button { Label { "Delete" } } AUI_LET { connect(it->clicked, [this, todoItem] { deleteTodo(todoItem); }); }
                             } AUI_OVERRIDE_STYLE { Padding { 10_dp }, BackgroundSolid { AColor::WHITE } }
                         };
                   }).build() 
@@ -103,3 +106,7 @@ void MainWindow::load() {
     }
 }
 
+void MainWindow::deleteTodo(const _<TodoItem> todoItem) {
+    auto it = ranges::find(*mTodoItems, todoItem);
+    it = mTodoItems.writeScope()->erase(it);
+}

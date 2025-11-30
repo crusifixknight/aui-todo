@@ -13,7 +13,7 @@ private:
     void openDetailed(const _<TodoItem>&);
     void save();
     void load();
+    void deleteTodo(const _<TodoItem>);
 
     AProperty<AVector<_<TodoItem>>> mTodoItems;
-    AProperty<_<TodoItem>> mCurrentTodoItem;
 };
