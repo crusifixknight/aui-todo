@@ -1,14 +1,14 @@
 # Standard routine
 cmake_minimum_required(VERSION 3.16)
-project(example_app
-        VERSION 0.0.12 # CI_PROJECT_VERSION
+project(aui_todo
+        VERSION 0.0.1 # CI_PROJECT_VERSION
     )
 
 option(BUILD_SHARED_LIBS "Build shared libs" OFF)
 option(AUIB_FORCE_PRECOMPILED "AUI.Boot: force precompiled dependencies" OFF)
 option(AUIB_NO_PRECOMPILED "AUI.Boot: disable precompiled dependencies" OFF)
 
-set(AUI_VERSION v8.0.0-rc.13)
+set(AUI_VERSION v8.0.0-rc.15)
 
 # Use AUI.Boot
 file(
@@ -19,7 +19,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/aui.boot.cmake)
 
 # import AUI
 auib_import(aui https://github.com/aui-framework/aui
-        COMPONENTS core views curl json crypt updater
+        COMPONENTS core views json
         VERSION ${AUI_VERSION})
 
 
@@ -28,13 +28,14 @@ auib_import(aui https://github.com/aui-framework/aui
 aui_executable(${PROJECT_NAME})
 
 # Link required libs
-aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views aui::updater)
+aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views aui::json)
+
 
 # Compile assets
 aui_compile_assets(${PROJECT_NAME})
 
 # Enable testing
-aui_enable_tests(${PROJECT_NAME})
+#aui_enable_tests(${PROJECT_NAME})
 
 # Setup icon, display name, etc
 aui_app(TARGET ${PROJECT_NAME}
