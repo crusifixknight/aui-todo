@@ -42,23 +42,24 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
                 AScrollArea::Builder()
                   .withContents(
                     AUI_DECLARATIVE_FOR(todoItem, *mTodoItems, AVerticalLayout){ 
-                       return Vertical{
-                           SpacerFixed { 10_dp },
-                           todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] {
-                               mCurrentTodoItem = todoItem;
-                               openDetailed(todoItem);
-                           });
-                           it& mCurrentTodoItem > [todoItem](AView& view, const _<TodoItem>& currentTodoItem) {
-                               ALOG_DEBUG(LOG_TAG)
-                                   << "currentTodoItem == todoItem " << currentTodoItem << " == " << todoItem;
-                           };
-                           }
-                       };
-                    }
-                  ).build() 
+                        return Vertical{
+                            SpacerFixed { 10_dp },
+                            Horizontal::Expanding{
+                                Horizontal{
+                                    Centered{
+                                        CheckBox{
+                                        .checked = AUI_REACT(todoItem->isCompleted),
+                                        .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; }
+                                        }
+                                    }
+                                },
+                                SpacerFixed { 10_dp }, 
+                                todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }); }
+                            } AUI_OVERRIDE_STYLE { Padding { 10_dp }, BackgroundSolid { AColor::WHITE } }
+                        };
+                  }).build() 
             }
     );
-
 }
 
 void MainWindow::newTodo() {
@@ -80,33 +81,10 @@ _<AView> todoPreview(const _<TodoItem> todoItem) {
         return s.restrictLength(100, "").replacedAll('\n', ' ');
     };
 
-    auto check = _new<AProperty<bool>>(todoItem->isCompleted);
-    return Horizontal::Expanding {
-        Horizontal {
-            Centered { CheckBox {
-              .checked = AUI_REACT(todoItem->isCompleted),
-              .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; } } },
-                SpacerFixed { 10_dp },
-                Vertical::Expanding {
-                Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE {
-                    FontSize { 16_pt }, ATextOverflow::ELLIPSIS
-                },
-                    Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE {
-                    Opacity { 0.7f }, ATextOverflow::ELLIPSIS
-                }
-            }
-        }
-    }
-    AUI_OVERRIDE_STYLE { Padding { 10_dp }, BackgroundSolid { AColor::WHITE } };
-}
-
-
-_<AView> minimalCheckBox(_<AProperty<bool>> state) {
-    return CheckBox {
-        .checked = AUI_REACT(*state),
-        .onCheckedChange = [state](bool checked) { *state = checked; },
-        .content = Label { "Minimal checkbox" },
-    };
+    return Vertical::Expanding {
+            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::ELLIPSIS },
+            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS }
+     };
 }
 
 void MainWindow::save()
