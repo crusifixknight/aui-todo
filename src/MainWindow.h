@@ -8,6 +8,8 @@
 class MainWindow: public AWindow {
 public:
     MainWindow();
+    ~MainWindow();
+
 private:
     void newTodo();
     void openDetailed(const _<TodoItem>&);
