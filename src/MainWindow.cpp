@@ -12,16 +12,18 @@
 #include <AUI/ASS/Property/Padding.h>
 #include "DetailedWindow.h"
 #include "model/TodoItem.h"
-#include<AUI/Json/Conversion.h>
+#include <AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
 #include <AUI/View/ACheckBox.h>
 #include <AUI/Util/AWordWrappingEngineImpl.h>
+#include <AUI/Platform/AMessageBox.h>
+#include <AUI/View/ADrawableView.h>
 
 using namespace declarative;
 
 static constexpr auto LOG_TAG = "Todo's";
 
-AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(date) AJSON_FIELDS_ENTRY(isCompleted))
+AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(isCompleted))
 
 MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
     setExtraStylesheet(AStylesheet {
@@ -36,8 +38,9 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
             Vertical{
               Centered{
                 Horizontal{
-                    Button{ Label { "New Note" }, { me::newTodo } },
-                    Button{ Label{ "Save" }, { me::save } }
+                    Button{ Horizontal{ Icon {":img/icon.svg"}, SpacerFixed {5_dp}, Label { "New Note" }}, { me::newTodo } },
+                    SpacerFixed { 20_dp },
+                    Button{ Horizontal{ Icon {":img/save.svg"}, SpacerFixed {5_dp},Label{ "Save" }}, { me::save } }
                 }
               },
                 AScrollArea::Builder()
@@ -55,14 +58,17 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
                                     }
                                 },
                                 SpacerFixed { 10_dp }, 
-                                todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }); },
-                                SpacerExpanding { },
-                                Button { Label { "Delete" } } AUI_LET { connect(it->clicked, [this, todoItem] { deleteTodo(todoItem); }); }
+                                todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }), Expanding {}; },
+                                Button { Horizontal {Icon {":img/trash.svg"}, SpacerFixed {5_dp}, Label { "Delete" }} } AUI_LET { connect(it->clicked, [this, todoItem] { deleteTodo(todoItem); }); }
                             } AUI_OVERRIDE_STYLE { Padding { 10_dp }, BackgroundSolid { AColor::WHITE } }
                         };
                   }).build() 
             }
     );
+}
+
+MainWindow::~MainWindow() {
+    MainWindow::save();
 }
 
 void MainWindow::newTodo() {
@@ -73,6 +79,11 @@ void MainWindow::newTodo() {
 
 void MainWindow::openDetailed(const _<TodoItem>& todoItem) 
 {
+    if (todoItem->isCompleted)
+    {
+        AMessageBox::show(this, "Task is marked as closed", "Task {} is marked as closed and can't be changed"_format(todoItem->title));
+        return;
+    }
     _new<DetailedWindow>(todoItem)->show();
 }
 

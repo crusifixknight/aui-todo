@@ -39,7 +39,7 @@ aui_compile_assets(${PROJECT_NAME})
 
 # Setup icon, display name, etc
 aui_app(TARGET ${PROJECT_NAME}
-        NAME "AUI App Example"
+        NAME "AUI Todo"
         VENDOR "AUI Project"
         ICON "assets/img/icon.svg"
 )
