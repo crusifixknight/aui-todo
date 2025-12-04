@@ -1,6 +1,8 @@
-#include "MainWindow.h"
-#include <AUI/Util/AMetric.h>
 #include <AUI/Util/UIBuildingHelpers.h>
+#include "MainWindow.h"
+#include "model/TodoItem.h"
+#include "DetailedWindow.h"
+#include <AUI/Util/AMetric.h>
 #include <AUI/View/ALabel.h>
 #include <AUI/View/AButton.h>
 #include <AUI/View/ASpacerFixed.h>
@@ -10,22 +12,22 @@
 #include <AUI/ASS/AStylesheet.h>
 #include <AUI/Platform/AWindow.h>
 #include <AUI/ASS/Property/Padding.h>
-#include "DetailedWindow.h"
-#include "model/TodoItem.h"
 #include <AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
 #include <AUI/View/ACheckBox.h>
 #include <AUI/Util/AWordWrappingEngineImpl.h>
 #include <AUI/Platform/AMessageBox.h>
 #include <AUI/View/ADrawableView.h>
+#include <AUI/Util/kAUI.h>
 
 using namespace declarative;
+using namespace ass;
 
 static constexpr auto LOG_TAG = "Todo's";
 
 AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(isCompleted))
 
-MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
+MainWindow::MainWindow() : AWindow("Todo Application", 900_dp, 800_dp) {
     setExtraStylesheet(AStylesheet {
       {
         t<AWindow>(),
@@ -68,10 +70,14 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
 }
 
 MainWindow::~MainWindow() {
+    if (detailedWindow != nullptr) {
+        detailedWindow->close();
+    }
     MainWindow::save();
 }
 
 void MainWindow::newTodo() {
+
     auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled", .isCompleted = false});
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
@@ -84,19 +90,31 @@ void MainWindow::openDetailed(const _<TodoItem>& todoItem)
         AMessageBox::show(this, "Task is marked as closed", "Task {} is marked as closed and can't be changed"_format(todoItem->title));
         return;
     }
-    _new<DetailedWindow>(todoItem)->show();
+    if (detailedWindow != nullptr) {
+        detailedWindow->close();
+        detailedWindow = nullptr;
+    }
+    detailedWindow = _new<DetailedWindow>(todoItem);
+    detailedWindow->show();
 }
 
 _<AView> todoPreview(const _<TodoItem> todoItem) {
+    auto stringOneLineTitlePreview = [](const AString& s) -> AString {
+        if (s.empty()) {
+            return "Empty";
+        }
+        return s.restrictLength(40, "...").replacedAll('\n', ' ');
+    };
+
     auto stringOneLinePreview = [](const AString& s) -> AString {
         if (s.empty()) {
             return "Empty";
         }
-        return s.restrictLength(100, "").replacedAll('\n', ' ');
+        return s.restrictLength(60, "...").replacedAll('\n', ' ');
     };
 
     return Vertical::Expanding {
-            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::ELLIPSIS },
+            Label { .text = AUI_REACT(stringOneLineTitlePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::CLIP },
             Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS }
      };
 }

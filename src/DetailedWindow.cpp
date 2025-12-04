@@ -6,16 +6,19 @@
 #include <AUI/Util/kAUI.h>
 #include <AUI/Util/AMetric.h>
 #include <AUI/View/ASpacerFixed.h>
-
+#include <AUI/View/AView.h>
+#include <AUI/Common/SharedPtr.h>
+#include <AUI/View/ATextArea.h>
 
 
 using namespace declarative;
+using namespace ass;
 
 _<AView> todoEditor(const _<TodoItem>& todoItem) {
     return AScrollArea::Builder().withContents(
         Vertical{
             _new<TitleTextArea>("Untitled") AUI_LET {
-                it->setCustomStyle({ FontSize { 20_pt }, Expanding {1, 0}, BackgroundSolid { AColor::WHITE } });
+                it->setCustomStyle({ FontSize { 20_pt }, Expanding {1, 0}, BackgroundSolid { AColor::WHITE }, MinSize {28_pt} });
                 AObject::biConnect(todoItem->title, it->text());
                 if (todoItem->description.raw.empty()) {
                     it->focus();

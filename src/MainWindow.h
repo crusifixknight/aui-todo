@@ -18,4 +18,5 @@ private:
     void deleteTodo(const _<TodoItem>);
 
     AProperty<AVector<_<TodoItem>>> mTodoItems;
+    _<AWindow> detailedWindow;
 };
