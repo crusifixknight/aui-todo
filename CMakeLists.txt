@@ -1,7 +1,7 @@
 # Standard routine
 cmake_minimum_required(VERSION 3.16)
 project(aui_todo
-        VERSION 0.0.2 # CI_PROJECT_VERSION
+        VERSION 0.0.3 # CI_PROJECT_VERSION
     )
 
 option(BUILD_SHARED_LIBS "Build shared libs" OFF)
@@ -35,7 +35,7 @@ aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views aui::json)
 aui_compile_assets(${PROJECT_NAME})
 
 # Enable testing
-#aui_enable_tests(${PROJECT_NAME})
+aui_enable_tests(${PROJECT_NAME})
 
 # Setup icon, display name, etc
 aui_app(TARGET ${PROJECT_NAME}
@@ -43,4 +43,3 @@ aui_app(TARGET ${PROJECT_NAME}
         VENDOR "AUI Project"
         ICON "assets/img/icon.svg"
 )
-

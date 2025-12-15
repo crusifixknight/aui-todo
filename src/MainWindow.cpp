@@ -1,6 +1,8 @@
-#include "MainWindow.h"
-#include <AUI/Util/AMetric.h>
 #include <AUI/Util/UIBuildingHelpers.h>
+#include "MainWindow.h"
+#include "model/TodoItem.h"
+#include "DetailedWindow.h"
+#include <AUI/Util/AMetric.h>
 #include <AUI/View/ALabel.h>
 #include <AUI/View/AButton.h>
 #include <AUI/View/ASpacerFixed.h>
@@ -10,22 +12,34 @@
 #include <AUI/ASS/AStylesheet.h>
 #include <AUI/Platform/AWindow.h>
 #include <AUI/ASS/Property/Padding.h>
-#include "DetailedWindow.h"
-#include "model/TodoItem.h"
 #include <AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
 #include <AUI/View/ACheckBox.h>
 #include <AUI/Util/AWordWrappingEngineImpl.h>
 #include <AUI/Platform/AMessageBox.h>
 #include <AUI/View/ADrawableView.h>
+#include <AUI/Util/kAUI.h>
+#include <chrono>
+#include <format>
 
 using namespace declarative;
+using namespace ass;
 
 static constexpr auto LOG_TAG = "Todo's";
 
 AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(isCompleted))
 
-MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
+
+
+template <typename T1, typename T2>
+struct AJsonConv<std::chrono::time_point<T1, T2>> {
+    static AJson toJson(std::chrono::time_point<T1, T2> v) { return v.time_since_epoch().count(); }
+    static void fromJson(const AJson& json, std::chrono::time_point<T1, T2>& dst) {
+        dst = std::chrono::time_point<T1, T2>(T2(json.asLongInt()));
+    }
+};
+
+MainWindow::MainWindow() : AWindow("Todo Application", 900_dp, 800_dp) {
     setExtraStylesheet(AStylesheet {
       {
         t<AWindow>(),
@@ -49,13 +63,13 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
                         return Vertical{
                             SpacerFixed { 10_dp },
                             Horizontal::Expanding{
-                                Horizontal{
+                                Vertical{
                                     Centered{
                                         CheckBox{
                                         .checked = AUI_REACT(todoItem->isCompleted),
                                         .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; }
-                                        }
-                                    }
+                                        } 
+                                    },SpacerFixed{10_dp}, Label{std::format("{:%Y.%m.%d}", todoItem->date)}
                                 },
                                 SpacerFixed { 10_dp }, 
                                 todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }), Expanding {}; },
@@ -68,11 +82,15 @@ MainWindow::MainWindow() : AWindow("Todo Application", 700_dp, 600_dp) {
 }
 
 MainWindow::~MainWindow() {
+    if (detailedWindow != nullptr) {
+        detailedWindow->close();
+    }
     MainWindow::save();
 }
 
 void MainWindow::newTodo() {
-    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled", .isCompleted = false});
+    const auto now { std::chrono::system_clock::now() };
+    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled",.date = floor<std::chrono::days>(std::chrono::system_clock::now()), .isCompleted = false});
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
 }
@@ -84,19 +102,31 @@ void MainWindow::openDetailed(const _<TodoItem>& todoItem)
         AMessageBox::show(this, "Task is marked as closed", "Task {} is marked as closed and can't be changed"_format(todoItem->title));
         return;
     }
-    _new<DetailedWindow>(todoItem)->show();
+    if (detailedWindow != nullptr) {
+        detailedWindow->close();
+        detailedWindow = nullptr;
+    }
+    detailedWindow = _new<DetailedWindow>(todoItem);
+    detailedWindow->show();
 }
 
 _<AView> todoPreview(const _<TodoItem> todoItem) {
+    auto stringOneLineTitlePreview = [](const AString& s) -> AString {
+        if (s.empty()) {
+            return "Empty";
+        }
+        return s.restrictLength(40, "...").replacedAll('\n', ' ');
+    };
+
     auto stringOneLinePreview = [](const AString& s) -> AString {
         if (s.empty()) {
             return "Empty";
         }
-        return s.restrictLength(100, "").replacedAll('\n', ' ');
+        return s.restrictLength(60, "...").replacedAll('\n', ' ');
     };
 
     return Vertical::Expanding {
-            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::ELLIPSIS },
+            Label { .text = AUI_REACT(stringOneLineTitlePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::CLIP },
             Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS }
      };
 }
