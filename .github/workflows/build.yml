@@ -50,6 +50,25 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install innosetup
 
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+          clang \
+          pkg-config \
+          libglew-dev \
+          zlib1g-dev \
+          libssl-dev \
+          libcrypt-dev \
+          libcurl4-openssl-dev \
+          libgtk-4-dev \
+          libadwaita-1-dev \
+          libdbus-1-dev \
+          libfontconfig-dev \
+          ninja-build \
+          libpulse-dev \
+
       - name: Install macos dependencies
         if: runner.os == 'macos-latest'
         run: brew install ninja
@@ -59,6 +78,14 @@ jobs:
 
       - name: Build Project
         run: cmake --build ${{github.workspace}}/build --config RelWithDebInfo
+
+      - name: Build Tests
+        run: cmake --build ${{github.workspace}}/build --config RelWithDebInfo --target Tests
+
+      - name: Run Tests (Windows)
+        if: runner.os == 'Windows'
+        working-directory: ${{github.workspace}}/build/bin/RelWithDebInfo/
+        run: ${{github.workspace}}/build/bin/RelWithDebInfo/Tests.exe
 
       - name: Pack Windows Setup
         if: runner.os == 'Windows'
