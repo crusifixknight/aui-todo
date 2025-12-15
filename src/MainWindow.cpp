@@ -19,13 +19,25 @@
 #include <AUI/Platform/AMessageBox.h>
 #include <AUI/View/ADrawableView.h>
 #include <AUI/Util/kAUI.h>
+#include <chrono>
+#include <format>
 
 using namespace declarative;
 using namespace ass;
 
 static constexpr auto LOG_TAG = "Todo's";
 
-AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(isCompleted))
+AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(date) AJSON_FIELDS_ENTRY(isCompleted))
+
+
+
+template <typename T1, typename T2>
+struct AJsonConv<std::chrono::time_point<T1, T2>> {
+    static AJson toJson(std::chrono::time_point<T1, T2> v) { return v.time_since_epoch().count(); }
+    static void fromJson(const AJson& json, std::chrono::time_point<T1, T2>& dst) {
+        dst = std::chrono::time_point<T1, T2>(T2(json.asLongInt()));
+    }
+};
 
 MainWindow::MainWindow() : AWindow("Todo Application", 900_dp, 800_dp) {
     setExtraStylesheet(AStylesheet {
@@ -51,13 +63,13 @@ MainWindow::MainWindow() : AWindow("Todo Application", 900_dp, 800_dp) {
                         return Vertical{
                             SpacerFixed { 10_dp },
                             Horizontal::Expanding{
-                                Horizontal{
+                                Vertical{
                                     Centered{
                                         CheckBox{
                                         .checked = AUI_REACT(todoItem->isCompleted),
                                         .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; }
-                                        }
-                                    }
+                                        } 
+                                    },SpacerFixed{10_dp}, Label{std::format("{:%Y.%m.%d}", todoItem->date)}
                                 },
                                 SpacerFixed { 10_dp }, 
                                 todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }), Expanding {}; },
@@ -77,8 +89,8 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::newTodo() {
-
-    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled", .isCompleted = false});
+    const auto now { std::chrono::system_clock::now() };
+    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled",.date = floor<std::chrono::days>(std::chrono::system_clock::now()), .isCompleted = false});
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
 }
