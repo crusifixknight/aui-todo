@@ -35,7 +35,7 @@ aui_link(${PROJECT_NAME} PRIVATE aui::core aui::views aui::json)
 aui_compile_assets(${PROJECT_NAME})
 
 # Enable testing
-#aui_enable_tests(${PROJECT_NAME})
+aui_enable_tests(${PROJECT_NAME})
 
 # Setup icon, display name, etc
 aui_app(TARGET ${PROJECT_NAME}
