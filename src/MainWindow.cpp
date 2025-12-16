@@ -27,7 +27,7 @@ using namespace ass;
 
 static constexpr auto LOG_TAG = "Todo's";
 
-AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(isCompleted))
+AJSON_FIELDS(TodoItem, AJSON_FIELDS_ENTRY(title) AJSON_FIELDS_ENTRY(description) AJSON_FIELDS_ENTRY(date) AJSON_FIELDS_ENTRY(isCompleted))
 
 
 
@@ -64,12 +64,12 @@ MainWindow::MainWindow() : AWindow("Todo Application", 900_dp, 800_dp) {
                             SpacerFixed { 10_dp },
                             Horizontal::Expanding{
                                 Vertical{
-                                    Centered{
+                                    Centered::Expanding{
                                         CheckBox{
                                         .checked = AUI_REACT(todoItem->isCompleted),
                                         .onCheckedChange = [todoItem](bool checked) { todoItem->isCompleted = checked; }
                                         } 
-                                    },SpacerFixed{10_dp}, Label{std::format("{:%Y.%m.%d}", todoItem->date)}
+                                    }
                                 },
                                 SpacerFixed { 10_dp }, 
                                 todoPreview(todoItem) AUI_LET { connect(it->clicked, [this, todoItem] { openDetailed(todoItem); }), Expanding {}; },
@@ -90,7 +90,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::newTodo() {
     const auto now { std::chrono::system_clock::now() };
-    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled",.date = floor<std::chrono::days>(std::chrono::system_clock::now()), .isCompleted = false});
+    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled",.date = floor<std::chrono::days>(now), .isCompleted = false});
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
 }
@@ -126,8 +126,12 @@ _<AView> todoPreview(const _<TodoItem> todoItem) {
     };
 
     return Vertical::Expanding {
-            Label { .text = AUI_REACT(stringOneLineTitlePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::CLIP },
-            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS }
+        Label { .text = AUI_REACT(stringOneLineTitlePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::CLIP },
+        Horizontal {
+            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS, Expanding{} },
+            Label { std::format("Created: {:%d.%m.%Y}", todoItem->date) } AUI_OVERRIDE_STYLE { Opacity { 0.7f } },
+            SpacerFixed{ 10_dp }
+        }
      };
 }
 
