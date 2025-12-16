@@ -1,7 +1,7 @@
 # Standard routine
 cmake_minimum_required(VERSION 3.16)
 project(aui_todo
-        VERSION 0.0.3 # CI_PROJECT_VERSION
+        VERSION 0.0.4 # CI_PROJECT_VERSION
     )
 
 option(BUILD_SHARED_LIBS "Build shared libs" OFF)
@@ -42,4 +42,6 @@ aui_app(TARGET ${PROJECT_NAME}
         NAME "AUI Todo"
         VENDOR "AUI Project"
         ICON "assets/img/icon.svg"
+
 )
+
