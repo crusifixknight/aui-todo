@@ -1,24 +1,16 @@
-#include <AUI/Util/UIBuildingHelpers.h>
 #include "MainWindow.h"
-#include "model/TodoItem.h"
 #include "DetailedWindow.h"
-#include <AUI/Util/AMetric.h>
 #include <AUI/View/ALabel.h>
 #include <AUI/View/AButton.h>
 #include <AUI/View/ASpacerFixed.h>
 #include <AUI/View/AListView.h>
 #include <AUI/View/AForEachUI.h>
-#include <AUI/Common/APropertyPrecomputed.h>
-#include <AUI/ASS/AStylesheet.h>
-#include <AUI/Platform/AWindow.h>
-#include <AUI/ASS/Property/Padding.h>
 #include <AUI/Json/Conversion.h>
 #include <AUI/IO/AFileInputStream.h>
 #include <AUI/View/ACheckBox.h>
 #include <AUI/Util/AWordWrappingEngineImpl.h>
 #include <AUI/Platform/AMessageBox.h>
 #include <AUI/View/ADrawableView.h>
-#include <AUI/Util/kAUI.h>
 #include <chrono>
 #include <format>
 
@@ -110,7 +102,7 @@ void MainWindow::openDetailed(const _<TodoItem>& todoItem)
     detailedWindow->show();
 }
 
-_<AView> todoPreview(const _<TodoItem> todoItem) {
+_<AView> todoPreview(const _<TodoItem>& todoItem) {
     auto stringOneLineTitlePreview = [](const AString& s) -> AString {
         if (s.empty()) {
             return "Empty";
@@ -151,7 +143,7 @@ void MainWindow::load() {
     }
 }
 
-void MainWindow::deleteTodo(const _<TodoItem> todoItem) {
+void MainWindow::deleteTodo(const _<TodoItem>& todoItem) {
     auto it = ranges::find(*mTodoItems, todoItem);
     it = mTodoItems.writeScope()->erase(it);
 }

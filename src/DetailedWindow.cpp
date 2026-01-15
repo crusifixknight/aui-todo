@@ -1,13 +1,9 @@
-#include "model/TodoItem.h"
 #include "DetailedWindow.h"
 #include "TitleTextArea.h"
 #include <AUI/View/Dynamic.h>
 #include <AUI/View/AScrollArea.h>
-#include <AUI/Util/kAUI.h>
-#include <AUI/Util/AMetric.h>
 #include <AUI/View/ASpacerFixed.h>
 #include <AUI/View/AView.h>
-#include <AUI/Common/SharedPtr.h>
 #include <AUI/View/ATextArea.h>
 
 
@@ -30,7 +26,7 @@ _<AView> todoEditor(const _<TodoItem>& todoItem) {
     });
 }
 
-DetailedWindow::DetailedWindow(_<TodoItem> todoItem) : AWindow(todoItem->title) {
+DetailedWindow::DetailedWindow(const _<TodoItem>& todoItem) : AWindow(todoItem->title) {
     setContents(
         Vertical::Expanding{
             experimental::Dynamic { AUI_REACT(todoEditor(todoItem)) } AUI_OVERRIDE_STYLE { Expanding() }
