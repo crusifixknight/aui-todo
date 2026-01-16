@@ -1,5 +1,5 @@
 #include "DetailedWindow.h"
-#include "TitleTextArea.h"
+#include "TitleTextField.h"
 #include <AUI/View/Dynamic.h>
 #include <AUI/View/AScrollArea.h>
 #include <AUI/View/ASpacerFixed.h>
@@ -13,15 +13,15 @@ using namespace ass;
 _<AView> todoEditor(const _<TodoItem>& todoItem) {
     return AScrollArea::Builder().withContents(
         Vertical{
-            _new<TitleTextArea>("Untitled") AUI_LET {
-                it->setCustomStyle({ FontSize { 20_pt }, Expanding {1, 0}, BackgroundSolid { AColor::WHITE }, MinSize {28_pt} });
+            _new<TitleTextField>() AUI_LET {
+                it->setCustomStyle({ FontSize { 20_pt }, Expanding {1, 0}, MinSize {28_pt} });
                 AObject::biConnect(todoItem->title, it->text());
                 if (todoItem->description.raw.empty()) {
                     it->focus();
                 }
             },
             SpacerFixed{ 10_dp },
-            _new<ATextArea>("Text") AUI_OVERRIDE_STYLE { Expanding(), BackgroundSolid { AColor::WHITE } } && todoItem->description
+            _new<ATextArea>() AUI_OVERRIDE_STYLE { Expanding(), Padding { 4_dp } } && todoItem->description 
         } AUI_OVERRIDE_STYLE { Padding { 8_dp, 16_dp }
     });
 }

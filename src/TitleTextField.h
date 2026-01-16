@@ -1,14 +1,16 @@
 #pragma once
-#include <AUI/View/ATextArea.h>
+#include <AUI/View/ATextField.h>
 
-class TitleTextArea : public ATextArea {
+
+class TitleTextField : public ATextField {
 public:
-    using ATextArea::ATextArea;
+    using ATextField::ATextField;
     void onCharEntered(AChar c) override {
         if (c == '\r') {
             AWindow::current()->focusNextView();
             return;
         }
-        ATextArea::onCharEntered(c);
+        ATextField::onCharEntered(c);
     }
+
 };
