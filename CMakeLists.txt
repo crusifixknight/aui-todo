@@ -44,5 +44,3 @@ aui_app(TARGET ${PROJECT_NAME}
         ICON "assets/img/icon.svg"
 
 )
-
-
