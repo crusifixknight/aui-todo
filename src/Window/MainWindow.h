@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/TodoItem.h"
+#include "Model/TodoItem.h"
 #include <AUI/Platform/AWindow.h>
 #include <AUI/Common/AProperty.h>
 #include <AUI/Common/AVector.h>

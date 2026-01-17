@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "Window/MainWindow.h"
 #include <AUI/Platform/Entry.h>
 
 AUI_ENTRY {
