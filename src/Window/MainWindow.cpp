@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "DetailedWindow.h"
+#include "View/TodoPreview.h"
 #include <AUI/View/ALabel.h>
 #include <AUI/View/AButton.h>
 #include <AUI/View/ASpacerFixed.h>
@@ -82,7 +83,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::newTodo() {
     const auto now { std::chrono::system_clock::now() };
-    auto todo = aui::ptr::manage_shared(new TodoItem { .title = "Untitled",.date = floor<std::chrono::days>(now), .isCompleted = false});
+    auto todo = aui::ptr::manage_shared(new TodoItem { .date = floor<std::chrono::days>(now) });
     mTodoItems.writeScope()->push_back(todo);
     openDetailed(todo);
 }
@@ -100,31 +101,6 @@ void MainWindow::openDetailed(const _<TodoItem>& todoItem)
     }
     detailedWindow = _new<DetailedWindow>(todoItem);
     detailedWindow->show();
-}
-
-_<AView> todoPreview(const _<TodoItem>& todoItem) {
-    auto stringOneLineTitlePreview = [](const AString& s) -> AString {
-        if (s.empty()) {
-            return "Empty";
-        }
-        return s.restrictLength(40, "...").replacedAll('\n', ' ');
-    };
-
-    auto stringOneLinePreview = [](const AString& s) -> AString {
-        if (s.empty()) {
-            return "Empty";
-        }
-        return s.restrictLength(60, "...").replacedAll('\n', ' ');
-    };
-
-    return Vertical::Expanding {
-        Label { .text = AUI_REACT(stringOneLineTitlePreview(todoItem->title)) } AUI_OVERRIDE_STYLE { FontSize { 16_pt }, ATextOverflow::CLIP },
-        Horizontal {
-            Label { .text = AUI_REACT(stringOneLinePreview(todoItem->description)) } AUI_OVERRIDE_STYLE { Opacity { 0.7f }, ATextOverflow::ELLIPSIS, Expanding{} },
-            Label { "Created: {:%d.%m.%Y}"_format(todoItem->date) } AUI_OVERRIDE_STYLE { Opacity { 0.7f } },
-            SpacerFixed{ 10_dp }
-        }
-     };
 }
 
 void MainWindow::save()

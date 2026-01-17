@@ -1,14 +1,10 @@
-#include "DetailedWindow.h"
+#include "TodoEditor.h"
 #include "TitleTextField.h"
-#include <AUI/View/Dynamic.h>
+#include <AUI/View/ATextArea.h>
 #include <AUI/View/AScrollArea.h>
 #include <AUI/View/ASpacerFixed.h>
-#include <AUI/View/AView.h>
-#include <AUI/View/ATextArea.h>
-
 
 using namespace declarative;
-using namespace ass;
 
 _<AView> todoEditor(const _<TodoItem>& todoItem) {
     return AScrollArea::Builder().withContents(
@@ -24,12 +20,4 @@ _<AView> todoEditor(const _<TodoItem>& todoItem) {
             _new<ATextArea>() AUI_OVERRIDE_STYLE { Expanding(), Padding { 4_dp } } && todoItem->description 
         } AUI_OVERRIDE_STYLE { Padding { 8_dp, 16_dp }
     });
-}
-
-DetailedWindow::DetailedWindow(const _<TodoItem>& todoItem) : AWindow(todoItem->title) {
-    setContents(
-        Vertical::Expanding{
-            experimental::Dynamic { AUI_REACT(todoEditor(todoItem)) } AUI_OVERRIDE_STYLE { Expanding() }
-        } 
-    );
 }

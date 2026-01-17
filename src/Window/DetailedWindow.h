@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/TodoItem.h"
+#include "Model/TodoItem.h"
 #include <AUI/Platform/AWindow.h>
 
 class DetailedWindow : public AWindow {
